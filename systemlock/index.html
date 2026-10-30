@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+<title>SystemLock</title>
+<style>
+  html, body { margin:0; height:100%; background:#050505; overflow:hidden;
+               -webkit-user-select:none; user-select:none; -webkit-tap-highlight-color:transparent; }
+  #logo { position:absolute; left:50%; top:50%; -webkit-transform:translate(-50%,-50%);
+          transform:translate(-50%,-50%); height:70%; max-width:70%; opacity:.8; }
+  #scan { position:absolute; top:0; left:0; right:0; bottom:0; display:none;
+          flex-direction:column; align-items:center; justify-content:center;
+          font-family:Arial,sans-serif; }
+  .rings { position:relative; width:364px; height:364px; display:flex;
+           align-items:center; justify-content:center; }
+  .ring { position:absolute; border-radius:50%; box-sizing:border-box; }
+  #r1 { width:320px; height:320px; border:2px dashed cyan; opacity:.3;
+        animation:spin 2s linear infinite; }
+  #r2 { width:280px; height:280px; border:1px dashed red; opacity:.5;
+        animation:spin 4s linear infinite reverse; }
+  @keyframes spin { to { transform:rotate(360deg); } }
+  .center { text-align:center; }
+  .center .t { color:red; font-size:18px; }
+  #pct { color:#fff; font-size:34px; margin-top:5px; }
+  .bar { width:400px; max-width:90%; height:8px; background:#111; margin-top:20px;
+         box-shadow:0 0 15px cyan; }
+  #fill { height:100%; width:0; background:cyan; }
+  .foot { width:400px; max-width:90%; display:flex; justify-content:space-between;
+          color:cyan; opacity:.5; font-size:10px; margin-top:10px; }
+  #video { position:absolute; top:0; left:0; width:100%; height:100%;
+           background:#000; display:none; object-fit:contain; }
+  #glitch { position:absolute; top:0; left:0; width:100%; height:100%;
+            pointer-events:none; opacity:.3; }
+  .gl { position:absolute; left:0; width:100%; }
+</style>
+</head>
+<body>
+
+<img id="logo" src="logo.png" alt="">
+
+<div id="scan">
+  <div class="rings">
+    <div class="ring" id="r1"></div>
+    <div class="ring" id="r2"></div>
+    <div class="center">
+      <div class="t">SCANNING...</div>
+      <div id="pct">0%</div>
+    </div>
+  </div>
+  <div class="bar"><div id="fill"></div></div>
+  <div class="foot"><span>S Y S T E M L O C K</span><span>v2.0.26_CYBER</span></div>
+</div>
+
+<video id="video" src="goi.mp4" playsinline preload="auto"></video>
+<div id="glitch"></div>
+
+<script>
+var logo = document.getElementById('logo');
+var scan = document.getElementById('scan');
+var pct = document.getElementById('pct');
+var fill = document.getElementById('fill');
+var video = document.getElementById('video');
+var glitch = document.getElementById('glitch');
+
+var started = false, taps = 0, lastTap = 0;
+
+function sleep(ms) { return new Promise(function (r) { setTimeout(r, ms); }); }
+function rnd(a, b) { return Math.floor(Math.random() * (b - a)) + a; }
+
+// 5 тапів по логотипу (пауза між тапами не більше 2 секунд)
+logo.addEventListener('click', function () {
+  if (started) return;
+  var now = Date.now();
+  if (now - lastTap > 2000) taps = 0;
+  lastTap = now;
+  taps++;
+  if (taps >= 5) { taps = 0; run(); }
+});
+
+async function run() {
+  started = true;
+
+  // "розблоковуємо" відео дотиком, щоб воно потім запустилось саме
+  try { await video.play(); video.pause(); video.currentTime = 0; } catch (e) {}
+
+  logo.style.display = 'none';
+  fill.style.width = '0'; pct.textContent = '0%';
+  scan.style.display = 'flex';
+
+  for (var i = 0; i <= 100; i++) {
+    fill.style.width = i + '%';
+    pct.textContent = i + '%';
+    await sleep(rnd(50, 250));
+    if (i === 99) await sleep(1000);
+  }
+
+  scan.style.display = 'none';
+  video.style.display = 'block';
+  video.currentTime = 0;
+  video.play();
+}
+
+video.addEventListener('ended', function () {
+  video.style.display = 'none';
+  logo.style.display = 'block';
+  started = false;
+});
+
+// Глітч-лінії
+setInterval(function () {
+  glitch.innerHTML = '';
+  if (rnd(0, 10) > 1) return;
+  var l = document.createElement('div');
+  l.className = 'gl';
+  l.style.top = rnd(0, window.innerHeight) + 'px';
+  l.style.height = rnd(1, 3) + 'px';
+  l.style.background = rnd(0, 2) === 0 ? 'cyan' : 'red';
+  glitch.appendChild(l);
+}, 45);
+
+document.addEventListener('contextmenu', function (e) { e.preventDefault(); });
+</script>
+</body>
+</html>
