@@ -52,7 +52,7 @@
   <div class="foot"><span>S Y S T E M L O C K</span><span>v2.0.26_CYBER</span></div>
 </div>
 
-<video id="video" src="goi.mp4" playsinline preload="auto"></video>
+<video id="video" src="goi.mp4" playsinline preload="none" muted></video>
 <div id="glitch"></div>
 
 <script>
@@ -95,9 +95,10 @@ async function run() {
     if (i === 99) await sleep(1000);
   }
 
-  scan.style.display = 'none';
+scan.style.display = 'none';
   video.style.display = 'block';
   video.currentTime = 0;
+  video.muted = false; // Вмикаємо звук назад перед запуском
   video.play();
 }
 
